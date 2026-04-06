@@ -5,7 +5,9 @@ const chatWindow = document.getElementById("chatWindow");
 const sendBtn = document.getElementById("sendBtn");
 
 /* App settings */
-const API_URL = "https://api.openai.com/v1/chat/completions";
+// Paste your Cloudflare Worker URL here.
+// Example: https://your-worker-name.your-subdomain.workers.dev
+const CLOUDFLARE_WORKER_URL = "https://loreal-worker.efxdy.workers.dev/";
 
 // System instructions keep the assistant focused on L'Oreal-related beauty topics.
 const systemPrompt =
@@ -183,18 +185,20 @@ function isAllowedBeautyQuestion(text) {
 // Render starter assistant message.
 addMessageBubble("assistant", messages[1].content);
 
-/* Call OpenAI Chat Completions API */
+/* Call Cloudflare Worker, which then calls OpenAI securely server-side */
 async function getAssistantResponse() {
-  const response = await fetch(API_URL, {
+  // Helpful error if the placeholder has not been replaced yet.
+  if (CLOUDFLARE_WORKER_URL === "YOUR_CLOUDFLARE_WORKER_URL_HERE") {
+    throw new Error("Please set your Cloudflare Worker URL in script.js");
+  }
+
+  const response = await fetch(CLOUDFLARE_WORKER_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o",
       messages,
-      temperature: 0.4,
     }),
   });
 
